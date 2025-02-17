@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
 	Select,
 	MenuItem,
@@ -7,9 +7,12 @@ import {
 	SelectChangeEvent,
 } from "@mui/material";
 
-const MakeSelect: React.FC = () => {
-	const [selectedMake, setSelectedMake] = useState<string>("");
+interface MakeSelectProps {
+	value: string;
+	onChange: (value: string) => void;
+}
 
+const MakeSelect: React.FC<MakeSelectProps> = ({ value, onChange }) => {
 	const vehicleMakes = [
 		"Acura",
 		"BMW",
@@ -28,7 +31,7 @@ const MakeSelect: React.FC = () => {
 	];
 
 	const handleChange = (event: SelectChangeEvent<string>) => {
-		setSelectedMake(event.target.value);
+		onChange(event.target.value);
 	};
 
 	return (
@@ -39,7 +42,7 @@ const MakeSelect: React.FC = () => {
 			<Select
 				labelId="vehicle-make-select-label"
 				id="vehicle-make-select"
-				value={selectedMake}
+				value={value}
 				label="Select a Vehicle Make"
 				onChange={handleChange}
 				required

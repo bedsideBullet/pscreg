@@ -17,38 +17,56 @@ import MakeSelect from "./MakeSelect";
 import axios from "axios";
 
 const RegistrationForm: React.FC = () => {
-	const [firstName, setFirstName] = useState<string>("");
-	const [lastName, setLastName] = useState<string>("");
-	const [email, setEmail] = useState<string>("");
+	const [formData, setFormData] = useState({
+		firstName: "",
+		lastName: "",
+		email: "",
+		vehicleModel: "",
+		otherNotes: "",
+		city: "",
+		state: "",
+		phone: "",
+		year: "",
+		make: "",
+	});
 	const [emailError, setEmailError] = useState<string>("");
-	const [vehicleModel, setVehicleModel] = useState<string>("");
-	const [otherNotes, setOtherNotes] = useState<string>("");
 	const [formError, setFormError] = useState<boolean>(false);
 
-	const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-		setFirstName(e.target.value);
-	const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-		setLastName(e.target.value);
+	const handleChange = (
+		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+	) => {
+		const { name, value } = e.target;
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
+	};
+
 	const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
-		setEmail(value);
+		setFormData((prevData) => ({
+			...prevData,
+			email: value,
+		}));
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		setEmailError(!emailRegex.test(value) ? "Invalid email address" : "");
 	};
-	const handleVehicleModelChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-		setVehicleModel(e.target.value);
-	const handleOtherNotesChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-		setOtherNotes(e.target.value);
+
+	const handleSelectChange = (name: string, value: string) => {
+		setFormData((prevData) => ({
+			...prevData,
+			[name]: value,
+		}));
+	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
+		const { firstName, lastName, email } = formData;
 		if (!firstName || !lastName || !email || emailError) {
 			setFormError(true);
 			return;
 		}
-
-		const formData = { firstName, lastName, email, vehicleModel, otherNotes };
 
 		try {
 			const response = await axios.post(
@@ -56,11 +74,18 @@ const RegistrationForm: React.FC = () => {
 				formData
 			);
 			alert("Registration successful: " + response.data.message);
-			setFirstName("");
-			setLastName("");
-			setEmail("");
-			setVehicleModel("");
-			setOtherNotes("");
+			setFormData({
+				firstName: "",
+				lastName: "",
+				email: "",
+				vehicleModel: "",
+				otherNotes: "",
+				city: "",
+				state: "",
+				phone: "",
+				year: "",
+				make: "",
+			});
 			setFormError(false);
 		} catch (error) {
 			const message = axios.isAxiosError(error)
@@ -102,6 +127,7 @@ const RegistrationForm: React.FC = () => {
 			<Box
 				sx={{
 					position: "fixed",
+					display: "flex",
 					top: 0,
 					left: 0,
 					width: "100vw",
@@ -113,26 +139,28 @@ const RegistrationForm: React.FC = () => {
 					zIndex: -1,
 				}}
 			/>
-
-			<Container
-				component="main"
-				maxWidth="sm"
+			<Box
 				sx={{
-					position: "relative",
-					top: "100px",
-					zIndex: 1,
-					overflowY: "auto",
-					height: "calc(100vh - 100px)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					width: "100vw",
+					height: "100vh",
+					overflow: "auto",
 				}}
 			>
-				<Box
+				<Container
+					component="main"
+					maxWidth="sm"
 					sx={{
+						position: "relative",
 						display: "flex",
 						flexDirection: "column",
 						alignItems: "center",
 						bgcolor: "rgba(255, 255, 255, 0.8)",
-						padding: "8px 32px",
+						padding: "32px",
 						borderRadius: 2,
+						zIndex: 1,
 					}}
 				>
 					<Typography component="h1" variant="h3">
@@ -158,11 +186,13 @@ const RegistrationForm: React.FC = () => {
 									id="firstName"
 									label="First Name"
 									autoFocus
-									value={firstName}
-									onChange={handleFirstNameChange}
-									error={formError && !firstName}
+									value={formData.firstName}
+									onChange={handleChange}
+									error={formError && !formData.firstName}
 									helperText={
-										formError && !firstName ? "First name is required" : ""
+										formError && !formData.firstName
+											? "First name is required"
+											: ""
 									}
 								/>
 							</Grid>
@@ -174,19 +204,33 @@ const RegistrationForm: React.FC = () => {
 									label="Last Name"
 									name="lastName"
 									autoComplete="family-name"
-									value={lastName}
-									onChange={handleLastNameChange}
-									error={formError && !lastName}
+									value={formData.lastName}
+									onChange={handleChange}
+									error={formError && !formData.lastName}
 									helperText={
-										formError && !lastName ? "Last name is required" : ""
+										formError && !formData.lastName
+											? "Last name is required"
+											: ""
 									}
 								/>
 							</Grid>
 							<Grid item xs={12} sm={6}>
-								<TextField fullWidth id="city" label="City" type="string" />
+								<TextField
+									fullWidth
+									id="city"
+									label="City"
+									name="city"
+									value={formData.city}
+									onChange={handleChange}
+								/>
 							</Grid>
 							<Grid item xs={12} sm={6}>
-								<StateSelect />
+								<StateSelect
+									value={formData.state}
+									onChange={(value: string) =>
+										handleSelectChange("state", value)
+									}
+								/>
 							</Grid>
 
 							<Grid item xs={12}>
@@ -197,20 +241,35 @@ const RegistrationForm: React.FC = () => {
 									label="Email Address"
 									name="email"
 									autoComplete="email"
-									value={email}
+									value={formData.email}
 									onChange={handleEmailChange}
 									error={!!emailError}
 									helperText={emailError}
 								/>
 							</Grid>
 							<Grid item xs={12} sm={8}>
-								<PhoneInput />
+								<PhoneInput
+									value={formData.phone}
+									onChange={(value: string) =>
+										handleSelectChange("phone", value)
+									}
+								/>
 							</Grid>
 							<Grid item xs={12} sm={4}>
-								<YearSelect />
+								<YearSelect
+									value={formData.year}
+									onChange={(value: string) =>
+										handleSelectChange("year", value)
+									}
+								/>
 							</Grid>
 							<Grid item xs={12} sm={6}>
-								<MakeSelect />
+								<MakeSelect
+									value={formData.make}
+									onChange={(value: string) =>
+										handleSelectChange("make", value)
+									}
+								/>
 							</Grid>
 							<Grid item xs={12} sm={6}>
 								<TextField
@@ -218,8 +277,8 @@ const RegistrationForm: React.FC = () => {
 									id="vehicleModel"
 									label="Vehicle Model"
 									name="vehicleModel"
-									value={vehicleModel}
-									onChange={handleVehicleModelChange}
+									value={formData.vehicleModel}
+									onChange={handleChange}
 								/>
 							</Grid>
 							<Grid item xs={12}>
@@ -230,8 +289,8 @@ const RegistrationForm: React.FC = () => {
 									name="otherNotes"
 									multiline
 									rows={2}
-									value={otherNotes}
-									onChange={handleOtherNotesChange}
+									value={formData.otherNotes}
+									onChange={handleChange}
 								/>
 							</Grid>
 						</Grid>
@@ -257,8 +316,8 @@ const RegistrationForm: React.FC = () => {
 							Register
 						</Button>
 					</Box>
-				</Box>
-			</Container>
+				</Container>
+			</Box>
 		</>
 	);
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
 	Select,
 	MenuItem,
@@ -7,9 +7,12 @@ import {
 	SelectChangeEvent,
 } from "@mui/material";
 
-const StateSelect: React.FC = () => {
-	const [selectedState, setSelectedState] = useState<string>("");
+interface StateSelectProps {
+	value: string;
+	onChange: (value: string) => void;
+}
 
+const StateSelect: React.FC<StateSelectProps> = ({ value, onChange }) => {
 	const usStates = [
 		"Alabama",
 		"Alaska",
@@ -64,7 +67,7 @@ const StateSelect: React.FC = () => {
 	];
 
 	const handleChange = (event: SelectChangeEvent<string>) => {
-		setSelectedState(event.target.value);
+		onChange(event.target.value);
 	};
 
 	return (
@@ -73,7 +76,7 @@ const StateSelect: React.FC = () => {
 			<Select
 				labelId="us-state-select-label"
 				id="us-state-select"
-				value={selectedState}
+				value={value}
 				label="Select a State"
 				onChange={handleChange}
 				required

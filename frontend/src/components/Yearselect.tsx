@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
 	Select,
 	MenuItem,
@@ -7,15 +7,19 @@ import {
 	SelectChangeEvent,
 } from "@mui/material";
 
-const YearSelect: React.FC = () => {
-	const [selectedYear, setSelectedYear] = useState<number | string>("");
+interface YearSelectProps {
+	value: string;
+	onChange: (value: string) => void;
+}
+
+const YearSelect: React.FC<YearSelectProps> = ({ value, onChange }) => {
 	const years = Array.from(
 		{ length: 2025 - 1951 + 1 },
 		(_, index) => 1951 + index
 	);
 
-	const handleChange = (event: SelectChangeEvent<number | string>) => {
-		setSelectedYear(event.target.value);
+	const handleChange = (event: SelectChangeEvent<string>) => {
+		onChange(event.target.value);
 	};
 
 	return (
@@ -24,7 +28,7 @@ const YearSelect: React.FC = () => {
 			<Select
 				labelId="vehicle-year"
 				id="vehicle-year"
-				value={selectedYear}
+				value={value}
 				label="Vehicle Year"
 				onChange={handleChange}
 				required

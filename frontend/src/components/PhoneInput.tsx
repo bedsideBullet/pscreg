@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { TextField, FormHelperText, FormControl } from "@mui/material";
 
-const PhoneInput: React.FC = () => {
-	const [phoneNumber, setPhoneNumber] = useState<string>("");
+interface PhoneInputProps {
+	value: string;
+	onChange: (value: string) => void;
+}
+
+const PhoneInput: React.FC<PhoneInputProps> = ({ value, onChange }) => {
 	const [error, setError] = useState<boolean>(false);
 
 	const validatePhoneNumber = (number: string) => {
@@ -18,10 +22,12 @@ const PhoneInput: React.FC = () => {
 			.replace(/^(\d{3})(\d{3})(\d{4}).*/, "($1) $2-$3")
 			.slice(0, 14); // Limit to 14 characters (formatted length)
 
-		setPhoneNumber(formatted);
+		onChange(formatted);
 
 		if (formatted.length === 14 && validatePhoneNumber(formatted)) {
 			setError(false); // Clear error if valid
+		} else {
+			setError(true); // Set error if invalid
 		}
 	};
 
@@ -29,7 +35,7 @@ const PhoneInput: React.FC = () => {
 		<FormControl fullWidth error={error}>
 			<TextField
 				label="Phone Number"
-				value={phoneNumber}
+				value={value}
 				onChange={handleChange}
 				placeholder="(123) 456-7890"
 				required
